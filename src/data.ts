@@ -20,6 +20,7 @@ export const packingList: ChecklistItem[] = [
   { id: 'doc-13', category: 'Documents & Finance', text: 'Credit & Debit Cards', subText: 'Notify bank of travel, carry backup cards' },
   { id: 'doc-15', category: 'Documents & Finance', text: 'Cash (Euros)', subText: 'Small currency bills for quick tips and local gelaterias' },
   { id: 'doc-18', category: 'Documents & Finance', text: 'Vet and Emergency Vet Contact Information' },
+  { id: 'doc-19', category: 'Documents & Finance', text: 'Check with phone provider for international service rates', subText: 'Ensure cellular data or daily passes (such as AT&T International Day Pass or Verizon TravelPass) are activated' },
 
   // Packing Essentials
   { id: 'pe-1', category: 'Packing Essentials', text: '5-6 Casual Dresses / Lightweight Pants', subText: 'Light khakis, skorts, or grey chinos' },
@@ -94,14 +95,44 @@ export const itinerary: ItineraryDay[] = [
       name: 'Hotel Napoleon',
       address: 'Piazza Italia, 2, 54027 Pontremoli MS, Italy',
       phone: '+39 0187 830544',
-      notes: 'Check-in details provided. Welcome to Pontremoli! Ground transportation arrangements are ready.'
+      notes: 'Welcome to Pontremoli! Settle into your accommodations at Hotel Napoleon (Check-in starts at 15:00) and relax after your long journey. Ground transportation arrangements are ready.'
     },
     activities: [
       {
-        time: '15:00',
-        title: 'Hotel Napoleon Check-In',
-        description: 'Arrive in beautiful, historic Pontremoli and check in at the friendly Hotel Napoleon. Relax after your journey and settle into your accommodations.',
-        icon: 'hotel'
+        title: 'Walk the historic Chiosi Bridge',
+        description: 'Take a picturesque stroll over the 14th-century Chiosi Bridge (Ponte Chiosi) crossing the Verde river. The riverbed stones and historical arches make it a fantastic photo spot.',
+        location: 'Ponte Chiosi, Pontremoli',
+        icon: 'explore'
+      },
+      {
+        title: 'Savor Amor cookies at Caffè Svizzer',
+        description: 'Visit the historic Caffè Svizzer, open in Piazza della Repubblica since 1842. It has gorgeous wooden interiors. Pair your morning espresso with Pontremoli\'s signature Amor cream cake.',
+        location: 'Piazza della Repubblica, Pontremoli',
+        icon: 'food'
+      },
+      {
+        title: 'Visit the historic Campanone Tower',
+        description: 'Stand under the grand 14th-century defensive bell tower (Cacciaguerra) that separates the old Guelph and Ghibelline quarters. It has stood since 1322 as the iconic heart of the town.',
+        location: 'Piazza del Duomo, Pontremoli',
+        icon: 'explore'
+      },
+      {
+        title: 'Admire the Golden Splendor of Pontremoli Cathedral',
+        description: 'Step inside the light-filled Baroque interior of the Cathedral of Santa Maria Assunta. It features a giant, masterfully painted cupola, detailed gold stuccos, and spectacular marble altars.',
+        location: 'Cattedrale di Santa Maria Assunta, Pontremoli',
+        icon: 'tour'
+      },
+      {
+        title: 'Enjoy Baci di Pontremoli at Pasticceria Della Cresa',
+        description: 'Try their other super famous regional cookies, the chocolate and hazelnut Baci di Pontremoli (kisses), beautifully prepared at Pasticceria Della Cresa right near the river.',
+        location: 'Pasticceria Della Cresa, Pontremoli',
+        icon: 'food'
+      },
+      {
+        title: 'Dinner at Osteria della Sanacore',
+        description: 'Indulge in authentic Testaroli pasta—traditional dough baked in red-hot cast-iron testi pans and dressed in fresh basil pesto. Pair it with local Lunigiana white wine.',
+        location: 'Osteria della Sanacore, Pontremoli',
+        icon: 'food'
       }
     ]
   },
@@ -122,16 +153,40 @@ export const itinerary: ItineraryDay[] = [
     },
     activities: [
       {
-        time: '09:00',
-        title: 'Pontremoli Exploration',
-        description: 'Enjoy a leisurely breakfast and start exploring the historic center of Pontremoli. Famous for its ancient stone bridges and medieval towers.',
+        title: 'Walk the historic Chiosi Bridge',
+        description: 'Take a picturesque stroll over the 14th-century Chiosi Bridge (Ponte Chiosi) crossing the Verde river. The riverbed stones and historical arches make it a fantastic photo spot.',
+        location: 'Ponte Chiosi, Pontremoli',
         icon: 'explore'
       },
       {
-        time: '14:00',
-        title: 'Hotel Napoleon Leisure Time',
-        description: 'After lunch, enjoy a quiet afternoon resting or wandering Pontremoli. Don\'t forget that local businesses close down between 13:30 and 16:30 for the traditional afternoon riposo!',
-        icon: 'hotel'
+        title: 'Savor Amor cookies at Caffè Svizzer',
+        description: 'Visit the historic Caffè Svizzer, open in Piazza della Repubblica since 1842. It has gorgeous wooden interiors. Pair your morning espresso with Pontremoli\'s signature Amor cream cake.',
+        location: 'Piazza della Repubblica, Pontremoli',
+        icon: 'food'
+      },
+      {
+        title: 'Visit the historic Campanone Tower',
+        description: 'Stand under the grand 14th-century defensive bell tower (Cacciaguerra) that separates the old Guelph and Ghibelline quarters. It has stood since 1322 as the iconic heart of the town.',
+        location: 'Piazza del Duomo, Pontremoli',
+        icon: 'explore'
+      },
+      {
+        title: 'Admire the Golden Splendor of Pontremoli Cathedral',
+        description: 'Step inside the light-filled Baroque interior of the Cathedral of Santa Maria Assunta. It features a giant, masterfully painted cupola, detailed gold stuccos, and spectacular marble altars.',
+        location: 'Cattedrale di Santa Maria Assunta, Pontremoli',
+        icon: 'tour'
+      },
+      {
+        title: 'Enjoy Baci di Pontremoli at Pasticceria Della Cresa',
+        description: 'Try their other super famous regional cookies, the chocolate and hazelnut Baci di Pontremoli (kisses), beautifully prepared at Pasticceria Della Cresa right near the river.',
+        location: 'Pasticceria Della Cresa, Pontremoli',
+        icon: 'food'
+      },
+      {
+        title: 'Dinner at Osteria della Sanacore',
+        description: 'Indulge in authentic Testaroli pasta—traditional dough baked in red-hot cast-iron testi pans and dressed in fresh basil pesto. Pair it with local Lunigiana white wine.',
+        location: 'Osteria della Sanacore, Pontremoli',
+        icon: 'food'
       }
     ]
   },
@@ -745,5 +800,71 @@ export const italyFunFacts: FunFact[] = [
     category: 'Pontremoli Fact',
     fact: 'Pontremoli is famous for its unique Stele Statues, dating back and carved between 3000 BC and 200 BC, depicting ancient tribal leaders and warriors.',
     italianTranslation: 'Le Statue Stele della Lunigiana.'
+  },
+  {
+    id: 'f-7',
+    category: 'Pontremoli Sweet',
+    fact: 'Pontremoli has local pastry royalty: the "Amor" cookie. It features a secret, incredibly smooth custard filling flavored with vanilla and lemon, sandwiched between crisp wafers.',
+    italianTranslation: 'Un dolce Amor di Pontremoli, per favore!'
+  },
+  {
+    id: 'f-8',
+    category: 'Tuscan Valley History',
+    fact: 'The surrounding Tuscan Lunigiana valley is historically called "The Land of One Hundred Castles" because of its deep medieval history, mountain defense forts, and stone tower gates.',
+    italianTranslation: 'La Lunigiana, terra dei cento castelli.'
+  },
+  {
+    id: 'f-9',
+    category: 'Tuscan Food Wisdom',
+    fact: 'Tuscan mountain valleys are famous for sweet chestnuts. Traditional "Testaroli" are considered the oldest pasta format, baked in red-hot cast-iron "testi" pans and dressed with fresh basil pesto.',
+    italianTranslation: 'I testaroli caldi fatti nei testi d\'argilla.'
+  },
+  {
+    id: 'f-10',
+    category: 'Livorno Coffee',
+    fact: 'In Livorno, the dockside sailors drink "Ponce alla Livornese", a hot, sugary drink made with strong espresso, a splash of dark rum, a dash of cognac, and a thin, zesty curl of lemon peel.',
+    italianTranslation: 'Un Ponce livornese per scaldarmi l\'anima!'
+  },
+  {
+    id: 'f-11',
+    category: 'Sardinian Longevity',
+    fact: 'Cagliari (Sardinia) belongs to one of the world\'s prestigious culinary "Blue Zones". Local longevity is linked directly to cannonau red wine (rich in antioxidants) and pecorino sardo cheese.',
+    italianTranslation: 'Un bicchiere di Cannonau e del buon pecorino.'
+  },
+  {
+    id: 'f-12',
+    category: 'Sardinian Pasta',
+    fact: 'Cagliari serves incredible "Culurgiones" pasta. These handmade pockets are stuffed with potato, wild mint, and aged pecorino, and hand-sewn with a beautiful wheat-ear pattern.',
+    italianTranslation: 'I culurgiones sardi al pomodoro fresco.'
+  },
+  {
+    id: 'f-13',
+    category: 'Palermo Street Food',
+    fact: 'In Palermo, street food is a centuries-old way of life. The ultimate local sandwich features "Panelle" – crisp, hot, salted chickpea flour fritters spiked with parsley inside soft sesame rolls.',
+    italianTranslation: 'Un panino con panelle calde e limone!'
+  },
+  {
+    id: 'f-14',
+    category: 'Maltese Pastries',
+    fact: 'Valletta (Malta) is famous for its delicious "Pastizzi". These golden, buttery pastries are stuffed with either yellow curried split peas or rich ricotta, cooked until incredibly flaky.',
+    italianTranslation: 'Vorrei due pastizzi caldi di ricotta.'
+  },
+  {
+    id: 'f-15',
+    category: 'Barcelona Tapas',
+    fact: 'In Barcelona, you will find "Pan con Tomate" (known in Catalan as Pa amb Tomàquet). It is rustic sourdough bread rubbed with raw garlic, ripe tomatoes, olive oil, and salt.',
+    italianTranslation: 'Un plato de pan con tomate, por favor.'
+  },
+  {
+    id: 'f-16',
+    category: 'Marseille Magic',
+    fact: 'Marseille\'s culinary masterpiece is "Bouillabaisse" seafood stew. Traditionally, local fishermen boiled their unsellable bony rockfish in a broth loaded with saffron, garlic, and wild fennel.',
+    italianTranslation: 'Una bouillabaisse tradizionale nel porto vecchio.'
+  },
+  {
+    id: 'f-17',
+    category: 'Vatican Modesty',
+    fact: 'For your July 1st Vatican City schedule, note that Saint Peter\'s Basilica has an strictly enforced modesty Dress Code. Both knees and shoulders must be completely covered!',
+    italianTranslation: 'Spalle e ginocchia coperte per favore.'
   }
 ];

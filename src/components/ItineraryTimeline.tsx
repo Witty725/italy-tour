@@ -64,7 +64,26 @@ const LOCATIONS = [
   { name: "La Caravelle", query: "La Caravelle Marseille pub" },
   { name: "Calanque de Sugiton", query: "Calanque de Sugiton Marseille" },
   { name: "Torta di Ceci", query: "Torta di Ceci Livorno" },
-  { name: "Gagarin", query: "Torteria da Gagarin Livorno" }
+  { name: "Gagarin", query: "Torteria da Gagarin Livorno" },
+  { name: "Chiosi Bridge", query: "Ponte Chiosi Pontremoli Italy" },
+  { name: "Caffè Svizzer", query: "Caffe Svizzer Pontremoli" },
+  { name: "Osteria della Sanacore", query: "Osteria della Sanacore Pontremoli" },
+  { name: "Campanone Tower", query: "Il Campanone Pontremoli Italy" },
+  { name: "Pontremoli Cathedral", query: "Cattedrale Santa Maria Assunta Pontremoli" },
+  { name: "Pasticceria Della Cresa", query: "Pasticceria Della Cresa Pontremoli" },
+  { name: "Baci di Pontremoli", query: "Baci di Pontremoli cookies pastry" }
+];
+
+export const VOYAGE_PORTS = [
+  { city: 'Pontremoli', abbr: 'PT', date: 'June 18, 2026', day: 'June 18-22' },
+  { city: 'Livorno', abbr: 'LV', date: 'June 23, 2026', day: 'June 23' },
+  { city: 'Cagliari', abbr: 'CG', date: 'June 24, 2026', day: 'June 24' },
+  { city: 'Palermo', abbr: 'PL', date: 'June 25, 2026', day: 'June 25' },
+  { city: 'Valletta', abbr: 'VL', date: 'June 26, 2026', day: 'June 26' },
+  { city: 'At Sea', abbr: 'AS', date: 'June 27, 2026', day: 'June 27' },
+  { city: 'Barcelona', abbr: 'BC', date: 'June 28, 2026', day: 'June 28' },
+  { city: 'Marseille', abbr: 'MS', date: 'June 29, 2026', day: 'June 29' },
+  { city: 'Rome', abbr: 'RM', date: 'July 1, 2026', day: 'July 1-3' }
 ];
 
 // Helper to convert plain text into rich components featuring Google Images hyperlinks
@@ -220,7 +239,23 @@ function getDetailsThemeClasses(dayNum: number, month: string) {
 }
 
 export function ItineraryTimeline() {
-  const [selectedDate, setSelectedDate] = useState<string>(itinerary[0].date);
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    try {
+      const today = new Date();
+      if (today.getFullYear() === 2026) {
+        const monthNum = today.getMonth(); // 5 = June, 6 = July
+        const dayOfMonth = today.getDate();
+        if (monthNum === 5 && dayOfMonth >= 18 && dayOfMonth <= 30) {
+          const matched = itinerary.find(d => d.month === 'June' && d.dayNum === dayOfMonth);
+          if (matched) return matched.date;
+        } else if (monthNum === 6 && dayOfMonth >= 1 && dayOfMonth <= 3) {
+          const matched = itinerary.find(d => d.month === 'July' && d.dayNum === dayOfMonth);
+          if (matched) return matched.date;
+        }
+      }
+    } catch (_) {}
+    return itinerary[0].date;
+  });
   const [copiedPhone, setCopiedPhone] = useState(false);
 
   const selectedDay = itinerary.find(day => day.date === selectedDate) || itinerary[0];
@@ -240,9 +275,71 @@ export function ItineraryTimeline() {
   return (
     <div className="flex flex-col gap-4">
       {/* Calendar Header/Help Banner */}
-      <div className="glass-panel p-3.5 flex items-center gap-2.5 bg-indigo-950/20 border-indigo-500/20 text-xs text-indigo-300 leading-relaxed">
+      <div className="glass-panel p-3.5 flex items-center gap-2.5 bg-indigo-950/20 border-indigo-505/20 text-xs text-indigo-300 leading-relaxed">
         <Info className="w-4 h-4 shrink-0 text-indigo-400" />
         <span>Tap any date below to inspect detailed schedules, lodging details, and live image highlights.</span>
+      </div>
+
+      {/* Interactive Voyage Route Map Card */}
+      <div className="glass-panel bg-gradient-to-br from-slate-950 via-slate-900/60 to-slate-950 p-4 border-slate-800 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-black tracking-widest text-indigo-400 uppercase flex items-center gap-1.5 leading-none">
+            <Compass className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+            Interactive Cruise Voyage Path
+          </span>
+          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+            Mediterranean Loop
+          </span>
+        </div>
+        
+        {/* Horizontal Scrollable Voyage Progress and Ports indicator map */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 scrollbar-none shrink-0 -mx-1 px-1">
+          {VOYAGE_PORTS.map((port, index) => {
+            const isSelected = selectedDay.location.toLowerCase().includes(port.city.toLowerCase()) || 
+                               (port.city === 'At Sea' && selectedDay.location.includes('AT SEA')) ||
+                               (port.city === 'Rome' && selectedDay.location.includes('ROME')) ||
+                               (port.city === 'Rome' && selectedDay.location.includes('VATICAN'));
+            return (
+              <div key={index} className="flex items-center shrink-0">
+                {/* Connected Line (hidden for first) */}
+                {index > 0 && (
+                  <div className={`h-0.5 w-4 sm:w-6 transition-all shrink-0 ${isSelected ? 'bg-indigo-500' : 'bg-slate-800'}`}></div>
+                )}
+                
+                {/* Port Point Interactive Node */}
+                <button
+                  onClick={() => {
+                    const found = itinerary.find(d => d.date === port.date);
+                    if (found) setSelectedDate(found.date);
+                  }}
+                  className={`flex flex-col items-center gap-1 cursor-pointer transition-all ${
+                    isSelected 
+                      ? 'scale-105 select-none' 
+                      : 'opacity-55 hover:opacity-100 hover:scale-[1.02]'
+                  }`}
+                  id={`voyage-port-${port.city.toLowerCase().replace(/\s+/g, '-')}`}
+                  title={`Jump to ${port.city}`}
+                >
+                  <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center border-2 transition-all shadow-md ${
+                    isSelected 
+                      ? 'bg-indigo-500/20 text-indigo-300 border-indigo-400 font-extrabold shadow-indigo-500/15' 
+                      : 'bg-slate-950 text-slate-400 border-slate-800'
+                  }`}>
+                    <span className="text-[10px] sm:text-xs font-mono font-black">{port.abbr}</span>
+                  </div>
+                  <span className={`text-[9px] sm:text-[10px] font-black leading-none tracking-tight uppercase ${
+                    isSelected ? 'text-indigo-400 font-extrabold' : 'text-slate-500'
+                  }`}>
+                    {port.city}
+                  </span>
+                  <span className="text-[8px] font-mono font-semibold text-slate-500 leading-none mt-0.5">
+                    {port.day}
+                  </span>
+                </button>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Pocket Calendar Grid Tab */}
@@ -302,6 +399,11 @@ export function ItineraryTimeline() {
             })}
           </div>
         </div>
+        
+        {/* Footnote about historical temperatures */}
+        <p className="text-[10px] sm:text-xs text-amber-400 italic text-center font-semibold mt-2.5">
+          * Displayed temperatures reflect historical weather data. Check home tab for real-time weather.
+        </p>
       </div>
 
       {/* Selected Day Details Panel */}

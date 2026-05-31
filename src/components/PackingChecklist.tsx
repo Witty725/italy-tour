@@ -1,11 +1,17 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { packingList } from '../data';
 import { motion, AnimatePresence } from 'motion/react';
 import { LaundryStrategy } from './LaundryStrategy';
-import { Droplets, Lightbulb, X, Briefcase, Shield, Smartphone, Anchor, Info, CheckCircle2 } from 'lucide-react';
+import { Droplets, Lightbulb, X, Briefcase, Shield, Smartphone, Anchor, Info, CheckCircle2, Shirt } from 'lucide-react';
 
 const CATEGORIES = ['Documents & Finance', 'Packing Essentials', 'Electronics & Gear'];
+
+const CATEGORY_META: Record<string, { icon: React.ComponentType<any>; color: string }> = {
+  'Documents & Finance': { icon: Briefcase, color: 'text-[#10b981]' },
+  'Packing Essentials': { icon: Shirt, color: 'text-amber-400' },
+  'Electronics & Gear': { icon: Smartphone, color: 'text-sky-450' }
+};
 
 export function PackingChecklist() {
   const [activeTab, setActiveTab] = useState(CATEGORIES[0]);
@@ -18,6 +24,21 @@ export function PackingChecklist() {
       ...prev,
       [id]: !prev[id]
     }));
+  };
+
+  const toggleAllPacked = () => {
+    const totalCount = packingList.length;
+    const completedCount = Object.values(checkedItems).filter(Boolean).length;
+    
+    if (completedCount === totalCount) {
+      setCheckedItems({});
+    } else {
+      const allPacked: Record<string, boolean> = {};
+      packingList.forEach(item => {
+        allPacked[item.id] = true;
+      });
+      setCheckedItems(allPacked);
+    }
   };
 
   const progress = useMemo(() => {
@@ -59,6 +80,21 @@ export function PackingChecklist() {
           <Lightbulb className="w-4.5 h-4.5 text-amber-400" />
           <span>Packing Tips</span>
         </button>
+
+        {/* I'm All Packed Toggle Button */}
+        <button
+          onClick={toggleAllPacked}
+          className={`flex-1 py-3 font-extrabold text-xs uppercase tracking-wider rounded-xl border transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
+            progress.completed === progress.total
+              ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-450 hover:text-rose-300 border-rose-500/20 hover:border-rose-500/40'
+              : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 border-emerald-500/20 hover:border-emerald-500/40'
+          }`}
+          id="btn-all-packed"
+          title={progress.completed === progress.total ? "Unpack All" : "Mark All Packed"}
+        >
+          <CheckCircle2 className={`w-4.5 h-4.5 ${progress.completed === progress.total ? 'text-rose-400' : 'text-emerald-400'}`} />
+          <span>{progress.completed === progress.total ? "Clear All!" : "I'm All Packed!"}</span>
+        </button>
       </div>
 
       {/* Progress Panel */}
@@ -81,19 +117,27 @@ export function PackingChecklist() {
       <div className="glass-panel flex-1 flex flex-col overflow-hidden">
         {/* Tabs */}
         <div className="flex overflow-x-auto hide-scrollbar border-b border-slate-800">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveTab(cat)}
-              className={`px-4 sm:px-6 py-3 text-xs font-bold whitespace-nowrap transition-colors relative ${
-                activeTab === cat 
-                  ? 'text-amber-500 bg-amber-500/10 border-b-2 border-amber-500' 
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}
-            >
-              {cat.toUpperCase()}
-            </button>
-          ))}
+          {CATEGORIES.map((cat) => {
+            const meta = CATEGORY_META[cat];
+            const IconComponent = meta ? meta.icon : Briefcase;
+            const iconColorClass = meta ? meta.color : 'text-slate-400';
+            const isSelected = activeTab === cat;
+            
+            return (
+              <button
+                key={cat}
+                onClick={() => setActiveTab(cat)}
+                className={`px-4 sm:px-6 py-3.5 text-xs font-black whitespace-nowrap transition-all relative flex items-center gap-2 cursor-pointer ${
+                  isSelected 
+                    ? 'text-amber-400 bg-amber-500/5 border-b-2 border-amber-500' 
+                    : 'text-slate-450 hover:text-slate-200 hover:bg-slate-900/40'
+                }`}
+              >
+                <IconComponent className={`w-4 h-4 transition-transform group-hover:scale-110 ${isSelected ? iconColorClass : 'text-slate-500 opacity-70'}`} />
+                <span>{cat.toUpperCase()}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Checklist Items */}

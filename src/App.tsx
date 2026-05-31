@@ -143,10 +143,30 @@ export default function App() {
                 <path d="M132 90 Q134.5 50 135.5 50 Q136.5 50 139 90 Z" fill="#022c22" />
                 <path d="M119 90 Q121 55 122 55 Q123 55 125 90 Z" fill="#022c22" opacity="0.8" />
                 
-                {/* Center farm house on a hill */}
-                <rect x="175" y="64" width="16" height="11" fill="#1e293b" stroke="#334155" strokeWidth="0.5" />
-                <polygon points="173,64 183,57 193,64" fill="#f43f5e" opacity="0.8" />
-                <rect x="180" y="69" width="3" height="6" fill="#0c111d" />
+                {/* Center: Pontremoli Piagnaro Castle */}
+                <g transform="translate(162, 53)">
+                  {/* Left smaller tower */}
+                  <rect x="0" y="12" width="7" height="15" fill="#1e293b" stroke="#334155" strokeWidth="0.5" />
+                  {/* Crenellations/Battlements on left tower */}
+                  <rect x="-1" y="10" width="9" height="2" fill="#475569" />
+                  
+                  {/* Main castle body */}
+                  <rect x="5" y="16" width="18" height="11" fill="#0f172a" stroke="#334155" strokeWidth="0.5" />
+                  {/* Castle Gate */}
+                  <path d="M 11 27 A 2 2 0 0 1 15 27 Z" fill="#090d16" stroke="#475569" strokeWidth="0.5" />
+
+                  {/* Main Tall Tower */}
+                  <rect x="18" y="3" width="8" height="24" fill="#1e293b" stroke="#475569" strokeWidth="0.5" />
+                  {/* Tower roof/top battlements */}
+                  <rect x="17" y="1" width="10" height="2" fill="#334155" />
+                  
+                  {/* High flag flying on the tower */}
+                  <line x1="25" y1="1" x2="25" y2="-4" stroke="#eab308" strokeWidth="0.5" />
+                  <polygon points="25,-4 29,-2 25,0" fill="#ef4444" />
+
+                  {/* Tiny arched windows */}
+                  <rect x="21" y="7" width="1.5" height="3" rx="0.5" fill="#090d16" />
+                </g>
                 <path d="M195 90 Q196.5 60 197.5 60 Q198.5 60 200 90 Z" fill="#022c22" />
 
                 {/* Right grove */}
@@ -154,31 +174,43 @@ export default function App() {
                 <path d="M253 90 Q255 42 256 42 Q257 42 259 90 Z" fill="#022c22" />
                 <path d="M260 90 Q262 55 263 55 Q264 55 266 90 Z" fill="#064e3b" opacity="0.9" />
 
-                {/* Right: Rome Colosseum silhouette with ruined broken top */}
-                <g transform="translate(290, 18)">
-                  {/* Back tier (broken) */}
-                  <path d="M15 72 L15 35 Q18 34 22 36 L25 31 Q28 30 35 34 L38 28 Q43 28 50 32 L53 29 Q58 29 65 33 L67 36 Q71 38 75 72 Z" fill="#111827" stroke="#374151" strokeWidth="0.75" />
+                {/* Right: Cruise Ship Silhouette */}
+                <g transform="translate(310, 65.4) scale(0.6)">
+                  {/* Hull of the ship block */}
+                  <path d="M 0 41 L 105 41 Q 115 41 120 28 L 125 18 L 10 18 Z" fill="#0f172a" stroke="#475569" strokeWidth="0.75" />
+                  {/* White-stripe hull accent */}
+                  <path d="M 8 18 L 122 18 L 118 24 L 6 24 Z" fill="#1e293b" />
+                  {/* Decks */}
+                  <rect x="15" y="8" width="100" height="10" fill="#1e293b" stroke="#475569" strokeWidth="0.5" />
+                  <rect x="25" y="-1" width="80" height="9" fill="#0f172a" stroke="#475569" strokeWidth="0.5" />
+                  <rect x="35" y="-8" width="60" height="7" fill="#1e293b" stroke="#475569" strokeWidth="0.5" />
                   
-                  {/* Inner arches dark openings */}
-                  {/* Row 2 */}
-                  <path d="M17 50 Q21 46 25 50" stroke="#374151" strokeWidth="1" fill="none" />
-                  <path d="M27 50 Q31 46 35 50" stroke="#374151" strokeWidth="1" fill="none" />
-                  <path d="M37 50 Q41 46 45 50" stroke="#374151" strokeWidth="1" fill="none" />
-                  <path d="M47 50 Q51 46 55 50" stroke="#374151" strokeWidth="1" fill="none" />
-                  <path d="M57 50 Q61 46 65 50" stroke="#374151" strokeWidth="1" fill="none" />
-                  <path d="M67 50 Q71 46 75 50" stroke="#374151" strokeWidth="1" fill="none" />
+                  {/* Red/Yellow Funnel */}
+                  <polygon points="50,-8 53,-16 62,-16 59,-8" fill="#ef4444" />
+                  <rect x="52" y="-19" width="10" height="3" fill="#111827" />
 
-                  {/* Front lower wall layer */}
-                  <path d="M12 72 L12 52 Q15 50 35 50 Q55 50 78 52 L78 72 Z" fill="#1f2937" stroke="#4b5563" strokeWidth="0.75" />
-                  
-                  {/* Row 1 grand arches */}
-                  <rect x="18" y="58" width="5" height="10" rx="2.5" fill="#090d16" />
-                  <rect x="27" y="58" width="5" height="10" rx="2.5" fill="#090d16" />
-                  <rect x="36" y="58" width="5" height="10" rx="2.5" fill="#090d16" />
-                  <rect x="45" y="58" width="5" height="10" rx="2.5" fill="#090d16" />
-                  <rect x="54" y="58" width="5" height="10" rx="2.5" fill="#090d16" />
-                  <rect x="63" y="58" width="5" height="10" rx="2.5" fill="#090d16" />
-                  <rect x="71" y="58" width="5" height="10" rx="2.5" fill="#090d16" />
+                  {/* Cabin lights (glowing yellow dots) */}
+                  <circle cx="22" cy="13" r="1" fill="#f59e0b" />
+                  <circle cx="30" cy="13" r="1" fill="#f59e0b" />
+                  <circle cx="38" cy="13" r="1" fill="#f59e0b" />
+                  <circle cx="46" cy="13" r="1" fill="#f59e0b" />
+                  <circle cx="54" cy="13" r="1" fill="#f59e0b" />
+                  <circle cx="62" cy="13" r="1" fill="#f59e0b" />
+                  <circle cx="70" cy="13" r="1" fill="#f59e0b" />
+                  <circle cx="78" cy="13" r="1" fill="#f59e0b" />
+                  <circle cx="86" cy="13" r="1" fill="#f59e0b" />
+                  <circle cx="94" cy="13" r="1" fill="#f59e0b" />
+
+                  <circle cx="30" cy="4" r="1" fill="#ffffff" opacity="0.9" />
+                  <circle cx="38" cy="4" r="1" fill="#ffffff" opacity="0.9" />
+                  <circle cx="46" cy="4" r="1" fill="#ffffff" opacity="0.9" />
+                  <circle cx="54" cy="4" r="1" fill="#ffffff" opacity="0.9" />
+                  <circle cx="62" cy="4" r="1" fill="#ffffff" opacity="0.9" />
+                  <circle cx="70" cy="4" r="1" fill="#ffffff" opacity="0.9" />
+                  <circle cx="78" cy="4" r="1" fill="#ffffff" opacity="0.9" />
+
+                  {/* Water ripple line */}
+                  <path d="M -15 41 Q 45 44 135 41" stroke="#38bdf8" strokeWidth="1.5" fill="none" opacity="0.6" strokeDasharray="3 2" />
                 </g>
 
                 {/* Flat base-line road shadow */}
