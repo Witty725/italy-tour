@@ -2,12 +2,16 @@ import { useState, useMemo } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { packingList } from '../data';
 import { motion, AnimatePresence } from 'motion/react';
+import { LaundryStrategy } from './LaundryStrategy';
+import { Droplets, Lightbulb, X, Briefcase, Shield, Smartphone, Anchor, Info, CheckCircle2 } from 'lucide-react';
 
 const CATEGORIES = ['Documents & Finance', 'Packing Essentials', 'Electronics & Gear'];
 
 export function PackingChecklist() {
   const [activeTab, setActiveTab] = useState(CATEGORIES[0]);
   const [checkedItems, setCheckedItems] = useLocalStorage<Record<string, boolean>>('packingProgress', {});
+  const [showLaundryModal, setShowLaundryModal] = useState(false);
+  const [showTipsModal, setShowTipsModal] = useState(false);
 
   const toggleItem = (id: string) => {
     setCheckedItems((prev) => ({
@@ -32,6 +36,31 @@ export function PackingChecklist() {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Quick Action Helpers Header */}
+      <div className="flex items-center gap-3 w-full">
+        {/* Laundry Strategy Button */}
+        <button
+          onClick={() => setShowLaundryModal(true)}
+          className="flex-1 py-3 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 hover:text-indigo-300 font-extrabold text-xs uppercase tracking-wider rounded-xl border border-indigo-500/20 hover:border-indigo-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+          id="btn-laundry-toggle"
+          title="Laundry Strategy"
+        >
+          <Droplets className="w-4.5 h-4.5 text-indigo-400 animate-pulse" />
+          <span>Laundry Guide</span>
+        </button>
+
+        {/* Creative Packing Tips Button */}
+        <button
+          onClick={() => setShowTipsModal(true)}
+          className="flex-1 py-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 hover:text-amber-300 font-extrabold text-xs uppercase tracking-wider rounded-xl border border-amber-500/20 hover:border-amber-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+          id="btn-packing-tips-toggle"
+          title="Pro Packing Tips"
+        >
+          <Lightbulb className="w-4.5 h-4.5 text-amber-400" />
+          <span>Packing Tips</span>
+        </button>
+      </div>
+
       {/* Progress Panel */}
       <div className="glass-panel p-4 flex flex-col justify-between">
         <div className="flex justify-between items-end">
@@ -82,30 +111,247 @@ export function PackingChecklist() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
                   onClick={() => toggleItem(item.id)}
-                  className="flex items-center gap-3 p-2 rounded cursor-pointer hover:bg-indigo-500/10 transition-colors group"
+                  className="flex items-start gap-3 p-2.5 rounded-xl cursor-pointer hover:bg-slate-900/60 border border-transparent hover:border-slate-850 transition-all group animate-fade-in"
                 >
-                  <div className={`w-5 h-5 flex-shrink-0 border-2 rounded ${
+                  <div className={`w-5 h-5 flex-shrink-0 border-2 rounded mt-0.5 transition-colors ${
                     isChecked 
                       ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-black' 
-                      : 'border-slate-600 group-hover:border-slate-400'
+                      : 'border-slate-650 group-hover:border-slate-400'
                   }`}>
                     {isChecked && '✓'}
                   </div>
-                  <span 
-                    className={`text-sm leading-tight transition-all duration-300 ${
-                      isChecked 
-                        ? 'text-slate-400 line-through opacity-50' 
-                        : 'text-slate-200'
-                    }`}
-                  >
-                    {item.text}
-                  </span>
+                  <div className="flex flex-col gap-0.5" id={`packing-item-${item.id}`}>
+                    <span 
+                      className={`text-sm tracking-tight font-extrabold transition-all duration-300 ${
+                        isChecked 
+                          ? 'text-slate-500 line-through opacity-50' 
+                          : 'text-slate-200 group-hover:text-amber-400'
+                      }`}
+                    >
+                      {item.text}
+                    </span>
+                    {item.subText && (
+                      <span className={`text-[11px] leading-snug transition-all duration-300 ${
+                        isChecked ? 'text-slate-600 line-through opacity-40' : 'text-slate-400 font-medium'
+                      }`}>
+                        {item.subText}
+                      </span>
+                    )}
+                  </div>
                 </motion.div>
               );
             })}
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Laundry Strategy Pop-Up Modal */}
+      <AnimatePresence>
+        {showLaundryModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto"
+            onClick={() => setShowLaundryModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              className="bg-slate-900 border border-slate-805/80 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl relative my-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-slate-900 p-5 border-b border-slate-800 flex items-center justify-between z-10">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-500/15 flex items-center justify-center border border-indigo-500/25">
+                    <Droplets className="w-4.5 h-4.5 text-indigo-400" />
+                  </div>
+                  <h3 className="text-white font-black text-sm uppercase tracking-wider">Laundry Strategy Guide</h3>
+                </div>
+                <button
+                  onClick={() => setShowLaundryModal(false)}
+                  className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+                  id="close-laundry-modal"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="p-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <LaundryStrategy />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Packing Tips Pop-Up Modal */}
+      <AnimatePresence>
+        {showTipsModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto"
+            onClick={() => setShowTipsModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              className="bg-slate-900 border border-slate-805/80 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl relative my-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-slate-900 p-5 border-b border-slate-800 flex items-center justify-between z-10">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center border border-amber-500/25">
+                    <Lightbulb className="w-4.5 h-4.5 text-amber-400" />
+                  </div>
+                  <h3 className="text-white font-black text-sm uppercase tracking-wider">Pro Packing Strategy</h3>
+                </div>
+                <button
+                  onClick={() => setShowTipsModal(false)}
+                  className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+                  id="close-tips-modal"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="p-6 max-h-[70vh] overflow-y-auto custom-scrollbar flex flex-col gap-6">
+                <div>
+                  <h4 className="text-amber-400 font-extrabold text-[10px] uppercase tracking-widest mb-1.5">Master Plan Overview</h4>
+                  <p className="text-slate-300 text-xs sm:text-sm leading-relaxed text-justify">
+                    Packing light for a diverse 16-day continental tour requires meticulous efficiency. Balancing countryside explorations (Apuane Alps, e-bikes), luxury cruise staterooms (MSC Gala evenings), and sacred sites (Vatican Proper) is easy when you adopt the right strategy.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs sm:text-sm">
+                  {/* Category 1 */}
+                  <div className="flex flex-col gap-2 bg-slate-950 p-4 rounded-xl border border-slate-850">
+                    <span className="text-[10px] font-black tracking-widest text-[#10b981] uppercase flex items-center gap-2">
+                      <Briefcase className="w-4 h-4 text-[#10b981]" />
+                      1. Checked-Luggage Strategy
+                    </span>
+                    <div className="flex flex-col gap-2.5 text-slate-300 text-xs mt-1">
+                      <div className="flex gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#10b981] shrink-0 mt-0.5" />
+                        <p className="leading-relaxed">
+                          <strong className="text-white">Compression Packing Cubes:</strong> Separate garments by category (Excursion shorts, formal polos, dinner dresses). Rolling clothes rather than folding saves ~30% of space and minimizes wrinkles.
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#10b981] shrink-0 mt-0.5" />
+                        <p className="leading-relaxed">
+                          <strong className="text-white">Heavy-Bottom Distribution:</strong> Place walking sneakers, bulkier jackets, and adapters near the wheels to maintain packing balance and avoid tipping suitcases.
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#10b981] shrink-0 mt-0.5" />
+                        <p className="leading-relaxed">
+                          <strong className="text-white">Divided Laundry Compartment:</strong> Pack a lightweight draw-string waterproof pouch or separate cube to safely isolate dirty textiles from clean attire.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Category 2 */}
+                  <div className="flex flex-col gap-2 bg-slate-950 p-4 rounded-xl border border-slate-850">
+                    <span className="text-[10px] font-black tracking-widest text-indigo-400 uppercase flex items-center gap-2">
+                      <Anchor className="w-4 h-4 text-indigo-500" />
+                      2. Carry-On & Cabin Backpack
+                    </span>
+                    <div className="flex flex-col gap-2.5 text-slate-300 text-xs mt-1">
+                      <div className="flex gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                        <p className="leading-relaxed">
+                          <strong className="text-white">The 24-Hour Backup Outfit:</strong> Pack a fresh set of clothes, dynamic activewear, underwear, toothbrush, and medication in your flight backpack. If ground-crew or airlines delay checked bags, your first days remain completely stress-free!
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                        <p className="leading-relaxed">
+                          <strong className="text-white">High Value Tech Only:</strong> Never check in valuable electronics, portable power bank adapters, chargers, or your cruise files; always secure them inside cabin-ready storage.
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                        <p className="leading-relaxed">
+                          <strong className="text-white">Quick Fluids Access:</strong> Place your TSA 3-1-1 clear toiletry bag at the very top pouch of your carry-on for swift scanning.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Category 3 */}
+                  <div className="flex flex-col gap-2 bg-slate-950 p-4 rounded-xl border border-slate-850">
+                    <span className="text-[10px] font-black tracking-widest text-red-400 uppercase flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-red-500" />
+                      3. Security & Theft Prevention
+                    </span>
+                    <div className="flex flex-col gap-2.5 text-slate-300 text-xs mt-1">
+                      <div className="flex gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                        <p className="leading-relaxed">
+                          <strong className="text-white">RFID-Blocking Neck Pouch:</strong> Wear an under-clothing passport bag or cross-body sling bag particularly in dense crowds (Rome Metro Station Termini, Vatican museums, markets).
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-red-450 shrink-0 mt-0.5" />
+                        <p className="leading-relaxed">
+                          <strong className="text-white">Digital Document Clones:</strong> Take offline screenshots and store high-resolution secure PDF files/reservations on local device systems or cloud storage (Google Drive).
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                        <p className="leading-relaxed">
+                          <strong className="text-white">Track Your Suite:</strong> Embed a smart tracking tag (Apple AirTag or Tile device) within checked bags to confidently follow updates at intermediate hub terminals.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Category 4 */}
+                  <div className="flex flex-col gap-2 bg-slate-950 p-4 rounded-xl border border-slate-850">
+                    <span className="text-[10px] font-black tracking-widest text-amber-500 uppercase flex items-center gap-2">
+                      <Smartphone className="w-4 h-4 text-amber-500" />
+                      4. Italy & Cruise Smart Hacks
+                    </span>
+                    <div className="flex flex-col gap-2.5 text-slate-300 text-xs mt-1">
+                      <div className="flex gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                        <p className="leading-relaxed">
+                          <strong className="text-white">Proper Vatican Attire (July 1):</strong> Ensure your knees and shoulders are covered. Keep a lightweight shawl or convertible modesty setup inside your active daypack.
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                        <p className="leading-relaxed">
+                          <strong className="text-white">Cruise Cabin Magnet Magic:</strong> Cabin walls are completely metallic! Pack heavy-duty magnetic hooks to attach itineraries, hats, and swimsuits to dry on the wall, saving massive table space.
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                        <p className="leading-relaxed">
+                          <strong className="text-white">Travel Sheets:</strong> Carry pre-dosed paper detergent sheets and a universal flat sink stopper to hand-wash active undergarments at any countryside washstand on the go.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-slate-950/70 border border-slate-850 rounded-xl flex gap-3 text-xs text-slate-300">
+                  <Info className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                  <p className="leading-relaxed">
+                    <span className="font-extrabold text-white">Universal Rule:</span> Wear your heaviest footwear (like walking sneakers) and bulkier layers (such as fleece, thick trousers, or cardigans) on the long transatlantic flight. This automatically reduces packing volume and avoids airlines overweight fees.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

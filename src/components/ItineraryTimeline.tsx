@@ -1,53 +1,536 @@
-import { CalendarDays, AlertTriangle, ThermometerSun } from 'lucide-react';
-import { itinerary } from '../data';
-import { motion } from 'motion/react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  Camera, 
+  Copy, 
+  Check, 
+  Phone, 
+  MapPin, 
+  AlertTriangle, 
+  ThermometerSun, 
+  Bus, 
+  Home, 
+  Utensils, 
+  Compass, 
+  Music, 
+  Ship, 
+  Heart,
+  ChevronRight,
+  Info
+} from 'lucide-react';
+import { itinerary, ItineraryDay, ItineraryActivity } from '../data';
+
+// Locations to turn into Google Images links
+const LOCATIONS = [
+  { name: "Cargalla", query: "Cargalla Pontremoli Italy" },
+  { name: "Molinello", query: "Molinello Pontremoli Italy" },
+  { name: "Toplecca", query: "Toplecca Pontremoli Italy" },
+  { name: "Piagnaro Castle", query: "Castello del Piagnaro Pontremoli" },
+  { name: "Museum of Lunigiana Stele Statues", query: "Museo delle Statue Stele Pontremoli" },
+  { name: "Santissima Annunziata Church", query: "Chiesa della Santissima Annunziata Pontremoli" },
+  { name: "Ristorante Abramo", query: "Ristorante Abramo Pontremoli" },
+  { name: "Lido di Camaiore", query: "Lido di Camaiore Tuscany" },
+  { name: "Villa Dosi Delfini", query: "Villa Dosi Delfini Pontremoli" },
+  { name: "Ristorante Locanda Ca' del Moro", query: "Locanda Ca del Moro Pontremoli" },
+  { name: "Hotel Napoleon", query: "Hotel Napoleon Pontremoli" },
+  { name: "Livorno", query: "Livorno Italy Port" },
+  { name: "Cagliari", query: "Cagliari Sardinia" },
+  { name: "Palermo", query: "Palermo Sicily" },
+  { name: "Valletta", query: "Valletta Malta" },
+  { name: "Barcelona", query: "Barcelona Spain coast" },
+  { name: "Marseille", query: "Marseille France port" },
+  { name: "Rome", query: "Rome Italy Colosseum" },
+  { name: "Vatican", query: "Vatican City tour" },
+  { name: "Colosseum", query: "Colosseum Rome Italy" },
+  { name: "Roman Forum", query: "Roman Forum Rome ruins" },
+  { name: "Sella del Diavolo", query: "Sella del Diavolo Cagliari Sardinia" },
+  { name: "San Benedetto Market", query: "Mercato di San Benedetto Cagliari" },
+  { name: "Stella Marina di Montecristo", query: "Stella Marina di Montecristo Cagliari" },
+  { name: "Martorana Church", query: "Santa Maria dell Ammiraglio Palermo Martorana" },
+  { name: "Monastero di Santa Caterina", query: "Monastero di Santa Caterina Palermo pastries" },
+  { name: "Friggitoria Chiluzzo", query: "Friggitoria Chiluzzo Kalsa Palermo" },
+  { name: "Capuchin Catacombs", query: "Catacombe dei Cappuccini Palermo" },
+  { name: "Lower Barrakka Gardens", query: "Lower Barrakka Gardens Valletta" },
+  { name: "Siege Bell War Memorial", query: "Siege Bell War Memorial Valletta" },
+  { name: "Valletta Underground", query: "Valletta Underground Tunnels" },
+  { name: "Birgu", query: "Birgu Vittoriosa Malta" },
+  { name: "Crystal Palace pastizzi", query: "Crystal Palace Rabat Malta pastizzi" },
+  { name: "Hospital de Sant Pau", query: "Hospital de Sant Pau Barcelona" },
+  { name: "Carrer dels Flassaders", query: "Carrer dels Flassaders Barcelona" },
+  { name: "El Xampanyet", query: "El Xampanyet Barcelona tapas" },
+  { name: "Bunkers del Carmel", query: "Bunkers del Carmel Barcelona view" },
+  { name: "Le Panier", query: "Le Panier district Marseille" },
+  { name: "Vallon des Auffes", query: "Vallon des Auffes Marseille" },
+  { name: "La Caravelle", query: "La Caravelle Marseille pub" },
+  { name: "Calanque de Sugiton", query: "Calanque de Sugiton Marseille" },
+  { name: "Torta di Ceci", query: "Torta di Ceci Livorno" },
+  { name: "Gagarin", query: "Torteria da Gagarin Livorno" }
+];
+
+// Helper to convert plain text into rich components featuring Google Images hyperlinks
+export function InteractiveText({ text, disableLinks = false }: { text: string; disableLinks?: boolean }) {
+  if (!text) return null;
+  
+  // Sort descending by length to ensure longer match phrases win first
+  const sortedAndEscaped = [...LOCATIONS].sort((a, b) => b.name.length - a.name.length);
+  
+  let parts: React.ReactNode[] = [text];
+  
+  sortedAndEscaped.forEach((loc) => {
+    const term = loc.name;
+    const nextParts: React.ReactNode[] = [];
+    
+    parts.forEach((part) => {
+      if (typeof part !== 'string') {
+        nextParts.push(part);
+        return;
+      }
+      
+      const regex = new RegExp(`(${term})`, 'gi');
+      const segments = part.split(regex);
+      
+      segments.forEach((seg, idx) => {
+        if (seg.toLowerCase() === term.toLowerCase() && !disableLinks) {
+          nextParts.push(
+            <a
+              key={`${loc.name}-${idx}`}
+              href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(loc.query)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              referrerPolicy="no-referrer"
+              className="inline-flex items-center gap-0.5 text-orange-400 hover:text-orange-300 underline font-bold transition-all decoration-dotted whitespace-nowrap bg-orange-500/10 hover:bg-orange-500/20 px-1.5 py-0.5 rounded text-[11px] sm:text-xs mx-0.5"
+              title={`View photos of ${seg}`}
+              id={`link-location-${loc.name.replace(/\s+/g, '-').toLowerCase()}`}
+            >
+              <Camera className="w-3.5 h-3.5 shrink-0 inline" />
+              {seg}
+            </a>
+          );
+        } else if (seg) {
+          nextParts.push(seg);
+        }
+      });
+    });
+    
+    parts = nextParts;
+  });
+  
+  return <>{parts}</>;
+}
+
+// Activity category icons
+function getActivityIcon(iconType?: string) {
+  switch (iconType) {
+    case 'hotel':
+      return <Home className="w-4 h-4 text-emerald-400" />;
+    case 'tour':
+      return <Compass className="w-4 h-4 text-indigo-400" />;
+    case 'food':
+      return <Utensils className="w-4 h-4 text-amber-400" />;
+    case 'concert':
+      return <Music className="w-4 h-4 text-rose-400" />;
+    case 'ship':
+      return <Ship className="w-4 h-4 text-blue-400" />;
+    case 'church':
+      return <Heart className="w-4 h-4 text-purple-400" />;
+    case 'transfer':
+    default:
+      return <Bus className="w-4 h-4 text-sky-400" />;
+  }
+}
+
+function getDayStyle(dayNum: number, month: string, isActive: boolean) {
+  if (month === 'June') {
+    if (dayNum >= 18 && dayNum <= 22) {
+      // June 18-22: Green
+      return isActive
+        ? 'bg-emerald-500/25 border-emerald-500/70 shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/50 text-emerald-200 font-bold scale-[1.02]'
+        : 'bg-emerald-950/15 border-emerald-500/30 text-emerald-400/95 hover:bg-emerald-950/25 hover:border-emerald-500/50';
+    } else if (dayNum === 23) {
+      // June 23: Blend Green -> White
+      return isActive
+        ? 'bg-gradient-to-r from-emerald-500/25 to-slate-200/20 border-emerald-300 text-white shadow-md ring-1 ring-emerald-300/40 scale-[1.02]'
+        : 'bg-gradient-to-r from-emerald-950/20 to-slate-900/40 border-slate-700/60 hover:from-emerald-950/35 hover:to-slate-800 text-slate-300';
+    } else if (dayNum >= 24 && dayNum <= 29) {
+      // June 24-29: White
+      return isActive
+        ? 'bg-slate-200/20 border-slate-100 shadow-md ring-1 ring-slate-200/35 text-white font-bold scale-[1.02]'
+        : 'bg-slate-900/40 border-slate-800 text-slate-400 hover:bg-slate-800 hover:border-slate-700';
+    } else if (dayNum === 30) {
+      // June 30: Blend White -> Red
+      return isActive
+        ? 'bg-gradient-to-r from-slate-200/15 to-red-500/25 border-rose-450 text-rose-200 shadow-md ring-1 ring-rose-450/45 scale-[1.02]'
+        : 'bg-gradient-to-r from-slate-900/40 to-red-950/30 border-rose-950/40 hover:from-slate-800 hover:to-red-950/40 text-slate-300';
+    }
+  } else if (month === 'July') {
+    // July 1-3: Red
+    return isActive
+      ? 'bg-red-500/25 border-red-500/70 shadow-lg shadow-red-500/10 ring-1 ring-red-500/50 text-red-100 font-bold scale-[1.02]'
+      : 'bg-red-950/15 border-red-500/30 text-red-400 hover:bg-red-950/25 hover:border-red-500/50';
+  }
+  return isActive
+    ? 'bg-rose-500/25 border-rose-500/60 shadow-lg'
+    : 'bg-slate-900/40 border-slate-800/80';
+}
+
+function getDetailsThemeClasses(dayNum: number, month: string) {
+  if (month === 'June') {
+    if (dayNum >= 18 && dayNum <= 22) {
+      return {
+        accentLine: 'before:absolute before:top-0 before:left-0 before:right-0 before:h-[3.5px] before:bg-emerald-500',
+        dateText: 'text-emerald-400 font-bold',
+        weatherIcon: 'text-emerald-400',
+        weatherHigh: 'text-emerald-500',
+        weatherLow: 'text-cyan-400',
+      };
+    } else if (dayNum === 23) {
+      return {
+        accentLine: 'before:absolute before:top-0 before:left-0 before:right-0 before:h-[3.5px] before:bg-gradient-to-r before:from-emerald-500 before:to-slate-100',
+        dateText: 'text-emerald-300 font-bold',
+        weatherIcon: 'text-indigo-400',
+        weatherHigh: 'text-emerald-500',
+        weatherLow: 'text-slate-300',
+      };
+    } else if (dayNum >= 24 && dayNum <= 29) {
+      return {
+        accentLine: 'before:absolute before:top-0 before:left-0 before:right-0 before:h-[3.5px] before:bg-slate-200',
+        dateText: 'text-slate-100 font-bold',
+        weatherIcon: 'text-slate-400',
+        weatherHigh: 'text-white',
+        weatherLow: 'text-slate-400',
+      };
+    } else if (dayNum === 30) {
+      return {
+        accentLine: 'before:absolute before:top-0 before:left-0 before:right-0 before:h-[3.5px] before:bg-gradient-to-r before:from-slate-200 before:to-red-500',
+        dateText: 'text-rose-300 font-bold',
+        weatherIcon: 'text-rose-450',
+        weatherHigh: 'text-white',
+        weatherLow: 'text-red-400',
+      };
+    }
+  }
+  // July 1-3
+  return {
+    accentLine: 'before:absolute before:top-0 before:left-0 before:right-0 before:h-[3.5px] before:bg-red-500',
+    dateText: 'text-red-400 font-bold',
+    weatherIcon: 'text-red-400',
+    weatherHigh: 'text-red-500',
+    weatherLow: 'text-cyan-450',
+  };
+}
 
 export function ItineraryTimeline() {
+  const [selectedDate, setSelectedDate] = useState<string>(itinerary[0].date);
+  const [copiedPhone, setCopiedPhone] = useState(false);
+
+  const selectedDay = itinerary.find(day => day.date === selectedDate) || itinerary[0];
+
+  const handleCopyPhone = (phone: string) => {
+    navigator.clipboard.writeText(phone);
+    setCopiedPhone(true);
+    setTimeout(() => setCopiedPhone(false), 2000);
+  };
+
+  // Group by month for nice calendar separation
+  const juneDays = itinerary.filter(day => day.month === 'June');
+  const julyDays = itinerary.filter(day => day.month === 'July');
+
+  const theme = getDetailsThemeClasses(selectedDay.dayNum, selectedDay.month);
+
   return (
-    <div className="glass-panel p-4">
-      <h3 className="text-indigo-400 text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
-        <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
-        Itinerary Timeline
-      </h3>
-      
-      <div className="relative overflow-hidden">
-        {/* Itinerary line */}
-        <div className="absolute left-[5px] top-2 bottom-0 w-[2px] bg-indigo-950 z-10"></div>
-        
-        <div className="flex flex-col gap-5 pr-2 z-20 relative">
-          {itinerary.map((day, index) => (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
-              key={day.date} 
-              className="relative pl-6"
-            >
-              <div className={`absolute left-0 top-1 w-3 h-3 rounded-full ring-4 ring-slate-900 z-20 ${day.warning ? 'bg-amber-500' : 'bg-indigo-600'}`}></div>
-              
-              <div className={`text-xs uppercase tracking-wider ${day.warning ? 'text-amber-500 font-bold' : 'text-slate-400'}`}>{day.date.split(',')[0]}</div>
-              <div className="font-bold text-sm text-slate-100">{day.location}</div>
-              
-              <div className="text-[10px] md:text-sm mt-1.5 bg-slate-800 p-2.5 rounded border border-slate-700/50 flex flex-col gap-1.5">
-                <div className="flex items-center gap-2 text-slate-300">
-                  <ThermometerSun className="w-3.5 h-3.5 text-amber-500" />
-                  <span className="font-mono text-amber-500/90 font-semibold">H:{day.highF}°</span>
-                  <span className="font-mono text-cyan-600/90 font-semibold">L:{day.lowF}°</span>
-                  <span className="truncate border-l border-slate-600 pl-2 leading-none">{day.weather}</span>
-                </div>
-                
-                {day.warning && (
-                  <div className="mt-1 bg-red-950/80 border border-red-700 p-2 rounded text-red-200 flex items-start gap-1.5">
-                    <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
-                    <span className="font-medium text-xs leading-tight">{day.warning}</span>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          ))}
+    <div className="flex flex-col gap-4">
+      {/* Calendar Header/Help Banner */}
+      <div className="glass-panel p-3.5 flex items-center gap-2.5 bg-indigo-950/20 border-indigo-500/20 text-xs text-indigo-300 leading-relaxed">
+        <Info className="w-4 h-4 shrink-0 text-indigo-400" />
+        <span>Tap any date below to inspect detailed schedules, lodging details, and live image highlights.</span>
+      </div>
+
+      {/* Pocket Calendar Grid Tab */}
+      <div className="glass-panel p-3.5 flex flex-col gap-3">
+        {/* June Section */}
+        <div>
+          <span className="text-[10px] font-black tracking-widest text-slate-500 uppercase block mb-2">
+            June 2026
+          </span>
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
+            {juneDays.map((day) => {
+              const isActive = day.date === selectedDate;
+              const styleClasses = getDayStyle(day.dayNum, day.month, isActive);
+              return (
+                <button
+                  key={day.date}
+                  onClick={() => setSelectedDate(day.date)}
+                  className={`flex flex-col items-center justify-between p-2 rounded-lg border text-center transition-all cursor-pointer ${styleClasses}`}
+                >
+                  <span className="text-[10px] leading-none text-slate-400 uppercase tracking-widest font-black">
+                    {day.date.split(' ')[0].substring(0, 3)}
+                  </span>
+                  <span className="text-sm font-black mt-1 mb-1 leading-none">{day.dayNum}</span>
+                  <span className="text-[9px] font-mono leading-none font-extrabold">
+                    {day.highF}°/{day.lowF}°
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* July Section */}
+        <div>
+          <span className="text-[10px] font-black tracking-widest text-slate-500 uppercase block mb-2">
+            July 2026
+          </span>
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
+            {julyDays.map((day) => {
+              const isActive = day.date === selectedDate;
+              const styleClasses = getDayStyle(day.dayNum, day.month, isActive);
+              return (
+                <button
+                  key={day.date}
+                  onClick={() => setSelectedDate(day.date)}
+                  className={`flex flex-col items-center justify-between p-2 rounded-lg border text-center transition-all cursor-pointer ${styleClasses}`}
+                >
+                  <span className="text-[10px] leading-none text-slate-400 uppercase tracking-widest font-black">
+                    {day.date.split(' ')[0].substring(0, 3)}
+                  </span>
+                  <span className="text-sm font-black mt-1 mb-1 leading-none">{day.dayNum}</span>
+                  <span className="text-[9px] font-mono leading-none font-extrabold">
+                    {day.highF}°/{day.lowF}°
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
+
+      {/* Selected Day Details Panel */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={selectedDay.date}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+          className={`glass-panel p-5 sm:p-6 flex flex-col gap-4 relative overflow-hidden ${theme.accentLine}`}
+        >
+          {/* Header metadata summary */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3.5 border-b border-slate-800">
+            <div>
+              <span className={`${theme.dateText} font-black text-xs sm:text-sm uppercase tracking-widest font-mono`}>
+                {selectedDay.date}
+              </span>
+              <h3 className="text-lg sm:text-xl font-bold text-white mt-0.5 uppercase tracking-tight">
+                {selectedDay.location}
+              </h3>
+            </div>
+
+            {/* Micro Weather card */}
+            <div className="bg-slate-950/60 px-3 py-2 rounded-xl border border-slate-800 text-left shrink-0 max-w-xs flex items-center gap-2.5">
+              <ThermometerSun className={`w-5 h-5 ${theme.weatherIcon} shrink-0`} />
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1.5 leading-none">
+                  <span className={`font-mono text-xs ${theme.weatherHigh} font-black`}>H: {selectedDay.highF}°F</span>
+                  <span className={`font-mono text-xs ${theme.weatherLow} font-black`}>L: {selectedDay.lowF}°F</span>
+                </div>
+                <span className="text-[10px] text-slate-400 font-bold mt-1 font-sans">{selectedDay.weather}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Warning Banner */}
+          {selectedDay.warning && (
+            <div className="bg-red-950/20 border border-red-500/30 p-3 rounded-xl flex items-start gap-2 text-xs text-red-200">
+              <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+              <div className="flex flex-col">
+                <span className="font-extrabold uppercase tracking-wide text-red-300">Important Advisory:</span>
+                <span className="mt-0.5 font-medium leading-relaxed">{selectedDay.warning}</span>
+              </div>
+            </div>
+          )}
+
+          {/* High-Fidelity Extended Weather description */}
+          {selectedDay.weatherDetails && (
+            <div className="bg-slate-900/30 p-3.5 rounded-xl border border-slate-800/80 text-xs">
+              <span className="text-slate-400 font-extrabold uppercase tracking-widest text-[9px] block mb-1">Weather Forecast Breakdown:</span>
+              <p className="text-slate-350 leading-relaxed font-medium">{selectedDay.weatherDetails}</p>
+            </div>
+          )}
+
+          {/* Lodging & Accommodation Highlight */}
+          {selectedDay.hotel && (
+            <div className="bg-gradient-to-br from-emerald-950/10 via-slate-900/40 to-slate-950/50 p-4 rounded-xl border border-emerald-500/20 flex flex-col gap-2.5">
+              <div className="flex items-center gap-2">
+                <Home className="w-4.5 h-4.5 text-emerald-400 shrink-0" />
+                <span className="text-emerald-400 font-black uppercase text-[10px] tracking-wider leading-none">Hotel Accommodation Stay</span>
+              </div>
+              
+              <div className="flex flex-col gap-0.5">
+                <span className="text-base font-black text-slate-100">{selectedDay.hotel.name}</span>
+                <span className="text-xs text-slate-400 font-medium flex items-center gap-1.5 mt-1">
+                  <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                  <InteractiveText text={selectedDay.hotel.address} />
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <a 
+                  href={`tel:${selectedDay.hotel.phone.replace(/\s+/g, '')}`}
+                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-850 rounded-lg border border-slate-800 text-xs text-slate-200 font-mono font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                  {selectedDay.hotel.phone}
+                </a>
+
+                <button 
+                  onClick={() => handleCopyPhone(selectedDay.hotel!.address)}
+                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-850 rounded-lg border border-slate-800 text-xs text-slate-200 font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  {copiedPhone ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
+                  <span>{copiedPhone ? 'Copied Complex Address!' : 'Copy Address'}</span>
+                </button>
+
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedDay.hotel.name + ', ' + selectedDay.hotel.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  referrerPolicy="no-referrer"
+                  className="px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 hover:text-indigo-300 rounded-lg border border-indigo-500/25 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                  id={`hotel-map-${selectedDay.hotel.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                >
+                  <MapPin className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>OPEN MAPS</span>
+                </a>
+
+                <a
+                  href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(selectedDay.hotel.name + ' ' + selectedDay.hotel.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  referrerPolicy="no-referrer"
+                  className="px-3 py-1.5 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 hover:text-orange-300 rounded-lg border border-orange-500/25 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                  id={`hotel-images-${selectedDay.hotel.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                >
+                  <Camera className="w-3.5 h-3.5 text-orange-400" />
+                  <span>IMAGE HIGHLIGHTS</span>
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Daily Schedule Events Timeline */}
+          <div>
+            <span className="text-slate-400 font-extrabold uppercase tracking-widest text-[9px] block mb-4 border-b border-slate-800 pb-2">
+              Timeline Activities
+            </span>
+
+            {selectedDay.activities && selectedDay.activities.length > 0 ? (
+              <div className="flex flex-col gap-3 relative">
+                {/* Visual vertical lineage line connector */}
+                <div className="absolute top-2 bottom-2 left-[18px] w-0.5 bg-slate-850"></div>
+
+                {selectedDay.activities.map((activity, index) => {
+                  const isAtSeaDay = selectedDay.dayNum === 27 && selectedDay.month === 'June';
+                  
+                  // Construct a rich local query for Maps & Images search
+                  const searchQuery = [
+                    activity.title,
+                    activity.location,
+                    selectedDay.location !== 'AT SEA' ? selectedDay.location : null
+                  ].filter(Boolean).join(', ');
+
+                  return (
+                    <div key={index} className="flex gap-4 relative z-10 group">
+                      {/* Visual icon badge step */}
+                      <div className="w-9 h-9 rounded-xl bg-slate-950 border border-slate-850 flex items-center justify-center shrink-0 group-hover:border-slate-700 transition-colors">
+                        {getActivityIcon(activity.icon)}
+                      </div>
+
+                      {/* Timeline card activity */}
+                      <div className="flex-1 bg-slate-950/40 p-4 rounded-xl border border-slate-900 group-hover:border-slate-800 transition-all flex flex-col gap-1.5">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                          <h4 className="text-slate-100 font-black text-sm pr-9 sm:pr-0">
+                            <InteractiveText text={activity.title} disableLinks={isAtSeaDay} />
+                          </h4>
+                          
+                          {activity.time && (
+                            <span className="font-mono text-[11px] font-black text-slate-500 bg-slate-900 px-2 py-0.5 rounded border border-slate-850 uppercase tracking-widest shrink-0 self-start sm:self-center">
+                              {activity.time}
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-xs text-slate-400 leading-relaxed font-normal">
+                          <InteractiveText text={activity.description} disableLinks={isAtSeaDay} />
+                        </p>
+
+                        {/* Optional metadata additions */}
+                        {activity.guidedBy && (
+                          <div className="mt-1 flex items-center gap-1 text-[11px] font-extrabold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20 w-fit">
+                            <Compass className="w-3.5 h-3.5" />
+                            <span>GUIDED BY: {activity.guidedBy}</span>
+                          </div>
+                        )}
+
+                        {activity.transport && (
+                          <div className="mt-1 flex items-center gap-1.5 text-[11px] font-extrabold text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-md border border-sky-500/20 w-fit font-sans">
+                            <Bus className="w-3.5 h-3.5" />
+                            <span>TRANSPORTATION: {activity.transport}</span>
+                          </div>
+                        )}
+
+                        {activity.location && !isAtSeaDay && (
+                          <div className="mt-1 flex items-center gap-1.5 text-[11px] font-extrabold text-rose-450 bg-rose-500/10 px-2.5 py-1 rounded-md border border-rose-500/20 w-fit font-sans">
+                            <MapPin className="w-3.5 h-3.5" />
+                            <span>LOCATION: <InteractiveText text={activity.location} disableLinks={isAtSeaDay} /></span>
+                          </div>
+                        )}
+
+                        {activity.menu && (
+                          <div className="mt-2 bg-amber-500/5 p-2.5 rounded-lg border border-amber-500/25 text-[11px] sm:text-xs">
+                            <span className="font-black text-amber-400 uppercase tracking-wide block mb-1">Catering & Beverage Menu:</span>
+                            <span className="text-slate-300 font-medium leading-relaxed">{activity.menu}</span>
+                          </div>
+                        )}
+
+                        {/* Standalone Google Images and Google Maps actions */}
+                        {!isAtSeaDay && (
+                          <div className="mt-3 pt-3 border-t border-slate-900 flex flex-wrap gap-2">
+                            <a
+                              href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(searchQuery)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              referrerPolicy="no-referrer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 hover:text-orange-300 text-xs font-black rounded-lg border border-orange-500/20 hover:border-orange-500/30 transition-all cursor-pointer"
+                              id={`img-search-${index}-${activity.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                            >
+                              <Camera className="w-3.5 h-3.5" />
+                              <span>IMAGE HIGHLIGHTS</span>
+                            </a>
+                            
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchQuery)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              referrerPolicy="no-referrer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 hover:text-indigo-300 text-xs font-black rounded-lg border border-indigo-500/20 hover:border-indigo-500/30 transition-all cursor-pointer"
+                              id={`map-link-${index}-${activity.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                            >
+                              <MapPin className="w-3.5 h-3.5" />
+                              <span>OPEN MAPS</span>
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <span className="text-slate-500 font-bold text-xs italic block text-center py-4">No scheduled specific activities listed. Take advantage of leisure time!</span>
+            )}
+          </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
